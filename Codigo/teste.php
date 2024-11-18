@@ -1,47 +1,59 @@
 <?php
-// Receber a URL da imagem do formulário
-$imageUrl = $_POST['imageUrl'];
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['image'])) {
+    // Caminho absoluto da pasta de upload
+    $uploadDir = __DIR__ . '/uploads/';
+    $uploadFile = $uploadDir . basename($_FILES['image']['name']);
 
-// Configurações da API
-$endpoint = "https://reconhecimentoprova2.cognitiveservices.azure.com/face/v1.0/detect";
-$subscriptionKey = "7A3HXGG05bMH1UvACZbc8hPyiWWNdQbXPPjXM07dcHEE9flvzhFbJQQJ99AKACZoyfiXJ3w3AAAKACOGeepd";
+    // Verifica se a pasta de uploads existe
+    if (!is_dir($uploadDir)) {
+        echo "A pasta de uploads não existe.";
+        exit;
+    }
 
-// Parâmetros da requisição
-$params = [
-    "returnFaceId" => "false",
-    "returnFaceLandmarks" => "false"
-];
+    // Verifica se a imagem foi enviada corretamente
+    if (move_uploaded_file($_FILES['image']['tmp_name'], $uploadFile)) {
+        echo "Imagem enviada com sucesso!<br>";
 
-// Criar a URL completa com os parâmetros
-$url = $endpoint . '?' . http_build_query($params);
+        // Agora que o arquivo foi enviado, enviaremos para a API da Azure
+        $endpoint = 'https://reconhecimentoprova2.cognitiveservices.azure.com/face/v1.0/detect'; // Use a URL correta
+        $key = '6JXH8i0huVYzbFf1q4I1OAlmhgC9aJKLAbW11lx93AAO6JplIMCrJQQJ99AKACZoyfiXJ3w3AAAKACOGwjts'; // Substitua com sua chave de assinatura
 
-// Dados para enviar na requisição
-$data = json_encode(["url" => $imageUrl]);
+        // Inicializa o cURL
+        $ch = curl_init();
 
-// Configurar o cURL
-$ch = curl_init($url);
-curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_HTTPHEADER, [
-    "Content-Type: application/json",
-    "Ocp-Apim-Subscription-Key: $subscriptionKey"
-]);
-curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        // Configura o cURL
+        curl_setopt($ch, CURLOPT_URL, $endpoint);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
 
-// Executar a requisição e obter a resposta
-$response = curl_exec($ch);
+        // Cabeçalhos exigidos pela Azure
+        $headers = [
+            'Ocp-Apim-Subscription-Key: ' . $key,
+            'Content-Type: application/octet-stream',  // Tipo de conteúdo para arquivo binário
+        ];
 
-// Verificar se houve erro
-if (curl_errno($ch)) {
-    echo "Erro: " . curl_error($ch);
-    curl_close($ch);
-    exit;
+        // Define os cabeçalhos
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        // Envia o arquivo de imagem diretamente
+        curl_setopt($ch, CURLOPT_POSTFIELDS, file_get_contents($uploadFile));
+
+        // Executa a requisição e captura a resposta
+        $response = curl_exec($ch);
+
+        // Verifica se ocorreu erro
+        if (curl_errno($ch)) {
+            echo 'Erro cURL: ' . curl_error($ch);
+        } else {
+            // Exibe a resposta da Azure
+            echo "Resposta da Azure: " . $response;
+        }
+
+        // Fecha a conexão cURL
+        curl_close($ch);
+
+    } else {
+        echo "Erro no upload da imagem.";
+    }
 }
-
-// Fechar a conexão cURL
-curl_close($ch);
-
-// Exibir o resultado da API
-header('Content-Type: application/json');
-echo $response;
 ?>
