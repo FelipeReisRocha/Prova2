@@ -10,6 +10,7 @@ $username = "meuUsuarioAdmin@pessoasqlserver"; // Nome de usuário com o formato
 $password = "minhaSenhaSegura123"; // Senha configurada no servidor MySQL
 $dbname = "PessoaSQL"; // Nome do banco de dados
 
+//aqui
 // Estabelece a conexão com o MySQL
 $mysqli = new mysqli($servername, $username, $password, $dbname, 3306, 'C:\Users\Cadu\Prova2\cacert.pem');
 
