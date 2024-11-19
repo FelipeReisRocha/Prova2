@@ -58,6 +58,24 @@
         .container {
             margin-bottom: 20px;
         }
+
+        /* Botão de Voltar */
+        .back-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            background-color: #333;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background-color: #555;
+        }
     </style>
 </head>
 <body>
@@ -99,6 +117,8 @@
             <input type="submit" value="Cadastrar">
         </div>
     </form>
+
+    <a href="index.php" class="back-btn">Voltar para a Página Inicial</a>
 
 </body>
 </html>
