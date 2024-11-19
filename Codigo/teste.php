@@ -4,23 +4,6 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// Configurações do banco de dados
-$servername = "pessoasqlserver.database.windows.net"; // Nome do servidor MySQL da Azure
-$username = "meuUsuarioAdmin@pessoasqlserver"; // Nome de usuário com o formato exigido pela Azure
-$password = "minhaSenhaSegura123"; // Senha configurada no servidor MySQL
-$dbname = "PessoaSQL"; // Nome do banco de dados
-
-//aqui
-// Estabelece a conexão com o MySQL
-$mysqli = new mysqli($servername, $username, $password, $dbname, 3306, 'C:\Users\Cadu\Prova2\cacert.pem');
-
-// Verifica se a conexão foi bem-sucedida
-if ($mysqli->connect_error) {
-    die("Erro de conexão: " . $mysqli->connect_error);
-} else {
-    echo "Conexão bem-sucedida!<br>";
-}
-
 // Verifica se o formulário foi enviado e se há um arquivo de imagem
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['image'])) {
     // Caminho absoluto da pasta de upload
@@ -88,31 +71,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_FILES['image'])) {
 
         // Fecha a conexão cURL
         curl_close($ch);
-
-        // Armazenar os dados do formulário no banco de dados
-        $nome = $mysqli->real_escape_string($_POST['nome']);
-        $email = $mysqli->real_escape_string($_POST['email']);
-        $telefone = $mysqli->real_escape_string($_POST['telefone']);
-        $data_nascimento = $_POST['data_nascimento'];
-        $endereco = $mysqli->real_escape_string($_POST['endereco']);
-        $foto = $uploadFile; // Caminho da imagem enviada
-
-        // Query para inserir os dados no banco
-        $sql = "INSERT INTO Pessoas (nome, email, telefone, data_nascimento, endereco, foto)
-                VALUES ('$nome', '$email', '$telefone', '$data_nascimento', '$endereco', '$foto')";
-
-        if ($mysqli->query($sql) === TRUE) {
-            echo "Novo registro criado com sucesso!";
-        } else {
-            echo "Erro ao criar registro: " . $mysqli->error;
-        }
     } else {
         echo "Erro no upload da imagem.";
     }
 } else {
     echo "Nenhuma imagem enviada.";
 }
-
-// Fecha a conexão com o banco de dados
-$mysqli->close();
 ?>
